@@ -1,10 +1,12 @@
-
-
-import './App.css';
-import GroupedChartDemo from './GroupChart';
+import "./App.css";
+import GroupedChartDemo from "./GroupChart";
 
 function App() {
-  return <><GroupedChartDemo /></>;
+  return (
+    <div>
+      <GroupedChartDemo />
+    </div>
+  );
 }
 
 export default App;
