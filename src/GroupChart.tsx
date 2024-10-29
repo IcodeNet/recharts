@@ -14,76 +14,61 @@ import _ from "lodash";
 import { ArrowUpDown } from "lucide-react";
 
 const GroupedChartDemo = () => {
-  // Sample data with groups (departments) and individual data points (employees)
   const initialData = [
-    { group: "Engineering", label: "Alice", value: 87 },
-    { group: "Engineering", label: "Bob", value: 92 },
-    { group: "Engineering", label: "Charlie", value: 78 },
-    { group: "Sales", label: "David", value: 95 },
-    { group: "Sales", label: "Eve", value: 88 },
-    { group: "Marketing", label: "Frank", value: 82 },
-    { group: "Marketing", label: "Grace", value: 91 },
-    { group: "Marketing", label: "Henry", value: 85 },
+    { group: "a++", label: "a", value: 87 },
+    { group: "a++", label: "b", value: 92 },
+    { group: "a++", label: "c", value: 78 },
+    { group: "a", label: "d", value: 95 },
+    { group: "a", label: "e", value: 88 },
+    { group: "a-", label: "f", value: 82 },
+    { group: "a-", label: "g", value: 91 },
+    { group: "a-", label: "h", value: 85 },
   ];
 
-  // Color mapping for departments
-  const groupColors: { [key: string]: string } = {
-    Engineering: "#8884d8",
-    Sales: "#82ca9d",
-    Marketing: "#ffc658",
+  const groupColors = {
+    "a++": "#8884d8",
+    a: "#82ca9d",
+    "a-": "#ffc658",
   };
 
-  const [groupSortOrder, setGroupSortOrder] = useState<"asc" | "desc">("asc");
-  const [itemSortOrder, setItemSortOrder] = useState<"asc" | "desc">("desc");
+  const [groupSortOrder, setGroupSortOrder] = useState("asc");
+  const [itemSortOrder, setItemSortOrder] = useState("desc");
 
-  // Process and sort the data
   const processData = () => {
-    // First, group the data by group
     const grouped = _.groupBy(initialData, "group");
 
-    // Calculate group averages and sort items within each group
     let processedData = Object.entries(grouped).map(([dept, items]) => {
       const sortedItems = _.orderBy(items, ["value"], [itemSortOrder]);
-      const avgProductivity = _.meanBy(items, "value");
+      const avgValue = _.meanBy(items, "value");
 
       return {
         group: dept,
         items: sortedItems,
-        avgProductivity,
-        color: groupColors[dept as keyof typeof groupColors],
+        avgValue,
+        color: groupColors[dept],
       };
     });
 
-    // Sort the groups based on average value
-    processedData = _.orderBy(
-      processedData,
-      ["avgProductivity"],
-      [groupSortOrder]
-    );
-
+    processedData = _.orderBy(processedData, ["avgValue"], [groupSortOrder]);
     return processedData;
   };
 
   const data = processData();
 
-  // Transform data for the chart with separation indicators
   const chartData = data.flatMap((group, groupIndex) => {
-    // Add the items for this group
     const items = group.items.map((item, index) => ({
       label: item.label,
-      fullName: `${item.label}\n${group.group}`, // Add group to label
       value: item.value,
       group: group.group,
       color: groupColors[group.group],
       isLastInGroup: index === group.items.length - 1,
-      isSeparator: false, // Add isSeparator property
+      isFirstInGroup: index === 0,
+      isSeparator: false,
     }));
 
-    // If this isn't the last group, add a separator item
     if (groupIndex < data.length - 1) {
       items.push({
         label: `${group.group}-separator`,
-        fullName: "",
         value: 0,
         group: group.group,
         isSeparator: true,
@@ -101,11 +86,9 @@ const GroupedChartDemo = () => {
     setItemSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
   };
 
-  // Custom shape for bars to apply group-specific colors
   const CustomBar = (props) => {
     const { fill, x, y, width, height, payload } = props;
 
-    // Don't render separator bars
     if (payload.isSeparator) {
       return null;
     }
@@ -115,31 +98,49 @@ const GroupedChartDemo = () => {
     );
   };
 
-  // Custom X Axis Label
   const CustomXAxisTick = (props) => {
-    const { x, y, payload } = props;
-    const lines = payload.value.split("\n");
+    const { x, y, payload, index } = props;
 
-    if (!lines[0]) return null; // Don't render labels for separators
-
+    if (payload[index].isSeparator) {
+      return (
+        <g transform={`translate(${x},${y})`}>
+          <line
+            x1={0}
+            y1={0}
+            x2={0}
+            y2={-400} // Adjust this value based on your chart height
+            stroke="#666"
+            strokeDasharray="4 4"
+          />
+        </g>
+      );
+    }
     return (
       <g transform={`translate(${x},${y})`}>
-        {/* Employee label */}
-        <text x={0} y={0} dy={16} textAnchor="middle" fill="#666">
-          {lines[0]}
-        </text>
-        {/* Group label */}
-        {/*  <text
+        <text
           x={0}
           y={0}
-          dy={32}
+          dy={8}
           textAnchor="middle"
           fill="#666"
-          fontSize="smaller"
-          fontStyle="italic"
+          fontSize="12px"
         >
-          {lines[1]}
-        </text> */}
+          {payload[index].label}
+        </text>
+        {payload[index].isFirstInGroup && (
+          <text
+            x={0}
+            y={0}
+            dy={24}
+            dx={24}
+            textAnchor="middle"
+            fill="#666"
+            fontSize="12px"
+            fontStyle="italic"
+          >
+            {payload[index].group}
+          </text>
+        )}
       </g>
     );
   };
@@ -171,14 +172,16 @@ const GroupedChartDemo = () => {
           >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis
-              dataKey="fullName"
+              dataKey="label"
               interval={0}
-              tick={<CustomXAxisTick />}
+              tick={(props) => (
+                <CustomXAxisTick {...props} payload={chartData} />
+              )}
               height={60}
             />
             <YAxis
               label={{
-                value: "Productivity Score",
+                value: "Interest Rates (APR)",
                 angle: -90,
                 position: "insideLeft",
                 offset: -5,
@@ -197,7 +200,7 @@ const GroupedChartDemo = () => {
                     <div className="bg-white p-2 border rounded shadow">
                       <p className="font-bold">{data.label}</p>
                       <p>Group: {data.group}</p>
-                      <p>Productivity: {data.value}</p>
+                      <p>Interest: {data.value}</p>
                     </div>
                   );
                 }
@@ -205,29 +208,22 @@ const GroupedChartDemo = () => {
               }}
             />
             <Legend />
-            <Bar
-              dataKey="value"
-              label="Productivity Score"
-              shape={<CustomBar />}
-            />
-            {/* Add vertical separators between departments */}
-            {chartData.map(
-              (item, index) =>
-                item.isSeparator && (
-                  <ReferenceLine
-                    key={`separator-${index}`}
-                    x={item.label}
-                    stroke="#ccc"
-                    strokeDasharray="3 3"
-                    strokeWidth={2}
-                  />
-                )
+            <Bar dataKey="value" name="Interest Rate" shape={<CustomBar />} />
+            {chartData.map((item, index) =>
+              item.isSeparator ? (
+                <ReferenceLine
+                  key={`separator-${index}`}
+                  x={item.label}
+                  stroke="#ccc"
+                  strokeDasharray="3 3"
+                  strokeWidth={2}
+                />
+              ) : null
             )}
           </BarChart>
         </ResponsiveContainer>
       </div>
 
-      {/* Display grouped data */}
       <div className="mt-8">
         {data.map((group) => (
           <div key={group.group} className="mb-6">
@@ -236,7 +232,7 @@ const GroupedChartDemo = () => {
                 className="w-4 h-4 rounded-full"
                 style={{ backgroundColor: group.color }}
               />
-              {group.group} (Avg: {group.avgProductivity.toFixed(1)})
+              {group.group} (Avg: {group.avgValue.toFixed(1)})
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {group.items.map((item) => (
@@ -249,7 +245,7 @@ const GroupedChartDemo = () => {
                   }}
                 >
                   <p className="font-medium">{item.label}</p>
-                  <p>Productivity: {item.value}</p>
+                  <p>Interest rate: {item.value}</p>
                 </div>
               ))}
             </div>
