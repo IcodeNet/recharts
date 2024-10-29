@@ -13,24 +13,49 @@ import {
 import _ from "lodash";
 import { ArrowUpDown } from "lucide-react";
 
+const initialData = [
+  { group: "a++", label: "a", value: 2.6 },
+  { group: "a++", label: "b", value: 1.4 },
+  { group: "a++", label: "c", value: 3.2 },
+  { group: "a++", label: "a", value: 2.6 },
+  { group: "a++", label: "b", value: 1.4 },
+  { group: "a++", label: "c", value: 3.2 },
+  { group: "a+", label: "d", value: 2 },
+  { group: "a+", label: "e", value: 4.3 },
+  { group: "a+", label: "d", value: 2 },
+  { group: "a+", label: "e", value: 1.3 },
+  { group: "a+", label: "d", value: 2 },
+  { group: "a+", label: "e", value: 1.3 },
+  { group: "a+", label: "d", value: 3 },
+  { group: "a+", label: "e", value: 1.3 },
+  { group: "a+", label: "d", value: 2 },
+  { group: "a+", label: "e", value: 1.3 },
+  { group: "a+", label: "d", value: 2 },
+  { group: "a+", label: "e", value: 1.3 },
+  { group: "a+", label: "d", value: 2 },
+  { group: "a", label: "e", value: 1.3 },
+  { group: "a", label: "d", value: 2 },
+  { group: "a", label: "e", value: 1.3 },
+  { group: "a", label: "d", value: 2 },
+  { group: "a", label: "e", value: 1.3 },
+  { group: "a", label: "d", value: 2 },
+  { group: "a", label: "e", value: 1.3 },
+  { group: "a-", label: "f", value: 2.6 },
+  { group: "a-", label: "g", value: 3.4 },
+  { group: "a-", label: "h", value: 4.1 },
+  { group: "a-", label: "f", value: 2.6 },
+  { group: "a-", label: "g", value: 3.4 },
+  { group: "a-", label: "h", value: 4.1 },
+];
+
+const groupColors = {
+  "a++": "#8884d8",
+  "a+": "#868686",
+  a: "#82ca9d",
+  "a-": "#ffc658",
+};
+
 const GroupedChartDemo = () => {
-  const initialData = [
-    { group: "a++", label: "a", value: 87 },
-    { group: "a++", label: "b", value: 92 },
-    { group: "a++", label: "c", value: 78 },
-    { group: "a", label: "d", value: 95 },
-    { group: "a", label: "e", value: 88 },
-    { group: "a-", label: "f", value: 82 },
-    { group: "a-", label: "g", value: 91 },
-    { group: "a-", label: "h", value: 85 },
-  ];
-
-  const groupColors = {
-    "a++": "#8884d8",
-    a: "#82ca9d",
-    "a-": "#ffc658",
-  };
-
   const [groupSortOrder, setGroupSortOrder] = useState("asc");
   const [itemSortOrder, setItemSortOrder] = useState("desc");
 
@@ -87,7 +112,7 @@ const GroupedChartDemo = () => {
   };
 
   const CustomBar = (props) => {
-    const { fill, x, y, width, height, payload } = props;
+    const { x, y, width, height, payload } = props;
 
     if (payload.isSeparator) {
       return null;
@@ -108,9 +133,9 @@ const GroupedChartDemo = () => {
             x1={0}
             y1={0}
             x2={0}
-            y2={-400} // Adjust this value based on your chart height
+            y2={-450} // Adjust this value based on your chart height
             stroke="#666"
-            strokeDasharray="4 4"
+            strokeDasharray="2 2"
           />
         </g>
       );
@@ -125,7 +150,7 @@ const GroupedChartDemo = () => {
           fill="#666"
           fontSize="12px"
         >
-          {payload[index].label}
+          {/*  {payload[index].label} */}
         </text>
         {payload[index].isFirstInGroup && (
           <text
@@ -135,7 +160,7 @@ const GroupedChartDemo = () => {
             dx={24}
             textAnchor="middle"
             fill="#666"
-            fontSize="12px"
+            fontSize="14px"
             fontStyle="italic"
           >
             {payload[index].group}
@@ -145,33 +170,76 @@ const GroupedChartDemo = () => {
     );
   };
 
+  const CustomLegend = (props) => {
+    const { payload } = props;
+    return (
+      <ul className="recharts-default-legend">
+        {payload.map((entry, index) => (
+          <li key={`item-${index}`} style={{ color: entry.color }}>
+            {/*   {entry.value} */}
+            <span className="block font-bold">Fitch ratings</span>
+            <span className="font-normal">Lower to higher risk</span>
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
+  const CustomYAxisLabel = ({ viewBox, value }) => {
+    const { x, y, width, height } = viewBox;
+    const cx = x + width / 2;
+    const cy = y + height / 2;
+    return (
+      <text
+        x={cx}
+        y={cy}
+        transform={`rotate(-90, ${cx - 24}, ${cy})`}
+        textAnchor="middle"
+        fill="#000"
+        fontWeight={700}
+        fontSize="14px"
+      >
+        {value}
+      </text>
+    );
+  };
+
+  // Find the maximum value in the data
+  const maxValue = Math.max(...initialData.map((d) => d.value));
+
   return (
     <div className="w-full max-w-6xl p-4">
-      <div className="mb-4 flex gap-4">
+      <div className="flex gap-4 mb-4">
         <button
           onClick={toggleGroupSort}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="flex items-center gap-2 px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
         >
           Sort Groups {groupSortOrder === "asc" ? "↑" : "↓"}
           <ArrowUpDown className="w-4 h-4" />
         </button>
         <button
           onClick={toggleItemSort}
-          className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          className="flex items-center gap-2 px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600"
         >
           Sort Items {itemSortOrder === "asc" ? "↑" : "↓"}
           <ArrowUpDown className="w-4 h-4" />
         </button>
       </div>
 
-      <div className="h-96 mt-8">
+      <div className="w-full min-w-full mt-8 h-96 ">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={chartData}
             margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
           >
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid
+              horizontal={true} // Enable horizontal lines
+              vertical={false} // Disable vertical lines
+              stroke="#cccccc" // Set the color of the lines
+              strokeDasharray="0 0" // Set the style of the lines (dashed lines)
+            />
             <XAxis
+              axisLine={false}
               dataKey="label"
               interval={0}
               tick={(props) => (
@@ -180,12 +248,9 @@ const GroupedChartDemo = () => {
               height={60}
             />
             <YAxis
-              label={{
-                value: "Interest Rates (APR)",
-                angle: -90,
-                position: "insideLeft",
-                offset: -5,
-              }}
+              axisLine={false}
+              domain={[0, maxValue]}
+              label={<CustomYAxisLabel value="Interest Rates (APR)" />}
             />
             <Tooltip
               content={({ active, payload }) => {
@@ -197,7 +262,7 @@ const GroupedChartDemo = () => {
                 ) {
                   const data = payload[0].payload;
                   return (
-                    <div className="bg-white p-2 border rounded shadow">
+                    <div className="p-2 bg-white border rounded shadow">
                       <p className="font-bold">{data.label}</p>
                       <p>Group: {data.group}</p>
                       <p>Interest: {data.value}</p>
@@ -207,8 +272,17 @@ const GroupedChartDemo = () => {
                 return null;
               }}
             />
-            <Legend />
-            <Bar dataKey="value" name="Interest Rate" shape={<CustomBar />} />
+            {/* To customize the legend in a BarChart from recharts, 
+            you can use the content property of the Legend component
+             to provide a custom legend renderer.
+              This allows you to fully control the appearance and behavior of the legend */}
+            <Legend content={<CustomLegend />} />
+            <Bar
+              barSize={10}
+              dataKey="value"
+              name="Interest Rate"
+              shape={<CustomBar />}
+            />
             {chartData.map((item, index) =>
               item.isSeparator ? (
                 <ReferenceLine
@@ -216,41 +290,12 @@ const GroupedChartDemo = () => {
                   x={item.label}
                   stroke="#ccc"
                   strokeDasharray="3 3"
-                  strokeWidth={2}
+                  strokeWidth={1}
                 />
               ) : null
             )}
           </BarChart>
         </ResponsiveContainer>
-      </div>
-
-      <div className="mt-8">
-        {data.map((group) => (
-          <div key={group.group} className="mb-6">
-            <h3 className="text-lg font-bold mb-2 flex items-center gap-2">
-              <div
-                className="w-4 h-4 rounded-full"
-                style={{ backgroundColor: group.color }}
-              />
-              {group.group} (Avg: {group.avgValue.toFixed(1)})
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {group.items.map((item) => (
-                <div
-                  key={item.label}
-                  className="p-4 rounded"
-                  style={{
-                    backgroundColor: `${group.color}20`,
-                    borderLeft: `4px solid ${group.color}`,
-                  }}
-                >
-                  <p className="font-medium">{item.label}</p>
-                  <p>Interest rate: {item.value}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
       </div>
     </div>
   );
