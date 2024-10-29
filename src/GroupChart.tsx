@@ -218,6 +218,8 @@ const GroupedChartDemo = ({ groupColors, initialData, legend, sublegend }) => {
               label={<CustomYAxisLabel value="Interest Rates (APR)" />}
             />
             <Tooltip
+              /* The grey area you see when mouse over to show the tooltip is called cursor */
+              cursor={{ fill: "transparent" }}
               content={({ active, payload }) => {
                 if (
                   active &&
@@ -247,6 +249,8 @@ const GroupedChartDemo = ({ groupColors, initialData, legend, sublegend }) => {
               dataKey="value"
               name="Interest Rate"
               shape={<CustomBar />}
+              isAnimationActive={false} // Disable animation
+              isActive={false} // Disable active state
             />
             {chartData.map((item, index) =>
               item.isSeparator ? (
