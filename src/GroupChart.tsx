@@ -205,10 +205,12 @@ const GroupedChartDemo = ({ groupColors, initialData, legend, sublegend }) => {
               tick={(props) => (
                 <CustomXAxisTick {...props} payload={chartData} />
               )}
+              tickLine={false}
               height={60}
             />
             <YAxis
               ticks={ticksYArray} // Custom tick points
+              tickLine={false} // Disable tick lines
               tickFormatter={(tick) => `${tick}%`} // Format tick labels as percentages
               axisLine={false}
               domain={[0, maxVisibleValue]}
