@@ -47,6 +47,7 @@ const GroupedChartDemo = ({ groupColors, initialData, legend, sublegend }) => {
       isLastInGroup: index === group.items.length - 1,
       isFirstInGroup: index === 0,
       isSeparator: false,
+      itemsCount: group.items.length,
     }));
 
     if (groupIndex < data.length - 1) {
@@ -112,7 +113,7 @@ const GroupedChartDemo = ({ groupColors, initialData, legend, sublegend }) => {
         </text>
         {payload[index].isFirstInGroup && (
           <text
-            x={0}
+            x={(payload[index].itemsCount * 20) / 2}
             y={0}
             dy={24}
             dx={24}
