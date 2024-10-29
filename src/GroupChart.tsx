@@ -164,6 +164,8 @@ const GroupedChartDemo = ({ groupColors, initialData, legend, sublegend }) => {
 
   // Find the maximum value in the data
   const maxValue = Math.max(...initialData.map((d) => d.value));
+  const maxVisibleValue = Math.round(maxValue) + 2;
+  const ticksYArray = Array.from({ length: maxVisibleValue }, (_, i) => i);
 
   return (
     <div className="w-full max-w-6xl p-4">
@@ -206,8 +208,10 @@ const GroupedChartDemo = ({ groupColors, initialData, legend, sublegend }) => {
               height={60}
             />
             <YAxis
+              ticks={ticksYArray} // Custom tick points
+              tickFormatter={(tick) => `${tick}%`} // Format tick labels as percentages
               axisLine={false}
-              domain={[0, maxValue]}
+              domain={[0, maxVisibleValue]}
               label={<CustomYAxisLabel value="Interest Rates (APR)" />}
             />
             <Tooltip
