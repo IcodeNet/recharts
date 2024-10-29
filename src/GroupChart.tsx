@@ -163,6 +163,23 @@ const GroupedChartDemo = ({ groupColors, initialData, legend, sublegend }) => {
     );
   };
 
+  const CustomYAxisTick = (props) => {
+    const { x, y, payload } = props;
+    return (
+      <text
+        x={x}
+        y={y}
+        dy={3}
+        textAnchor="end"
+        fill="#c0c0c0"
+        fontSize="10px"
+        fontFamily="Arial"
+      >
+        {payload.value}%
+      </text>
+    );
+  };
+
   // Find the maximum value in the data
   const maxValue = Math.max(...initialData.map((d) => d.value));
   const maxVisibleValue = Math.round(maxValue) + 2;
@@ -210,6 +227,7 @@ const GroupedChartDemo = ({ groupColors, initialData, legend, sublegend }) => {
               height={60}
             />
             <YAxis
+              tick={<CustomYAxisTick />} // Use the custom tick component
               ticks={ticksYArray} // Custom tick points
               tickLine={false} // Disable tick lines
               tickFormatter={(tick) => `${tick}%`} // Format tick labels as percentages
