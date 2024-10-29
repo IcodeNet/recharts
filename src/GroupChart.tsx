@@ -13,64 +13,22 @@ import {
 import _ from "lodash";
 import { ArrowUpDown } from "lucide-react";
 
-const initialData = [
-  { group: "a++", label: "a", value: 2.6 },
-  { group: "a++", label: "b", value: 1.4 },
-  { group: "a++", label: "c", value: 3.2 },
-  { group: "a++", label: "a", value: 2.6 },
-  { group: "a++", label: "b", value: 1.4 },
-  { group: "a++", label: "c", value: 3.2 },
-  { group: "a+", label: "d", value: 2 },
-  { group: "a+", label: "e", value: 4.3 },
-  { group: "a+", label: "d", value: 2 },
-  { group: "a+", label: "e", value: 1.3 },
-  { group: "a+", label: "d", value: 2 },
-  { group: "a+", label: "e", value: 1.3 },
-  { group: "a+", label: "d", value: 3 },
-  { group: "a+", label: "e", value: 1.3 },
-  { group: "a+", label: "d", value: 2 },
-  { group: "a+", label: "e", value: 1.3 },
-  { group: "a+", label: "d", value: 2 },
-  { group: "a+", label: "e", value: 1.3 },
-  { group: "a+", label: "d", value: 2 },
-  { group: "a", label: "e", value: 1.3 },
-  { group: "a", label: "d", value: 2 },
-  { group: "a", label: "e", value: 1.3 },
-  { group: "a", label: "d", value: 2 },
-  { group: "a", label: "e", value: 1.3 },
-  { group: "a", label: "d", value: 2 },
-  { group: "a", label: "e", value: 1.3 },
-  { group: "a-", label: "f", value: 2.6 },
-  { group: "a-", label: "g", value: 3.4 },
-  { group: "a-", label: "h", value: 4.1 },
-  { group: "a-", label: "f", value: 2.6 },
-  { group: "a-", label: "g", value: 3.4 },
-  { group: "a-", label: "h", value: 4.1 },
-];
-
-const groupColors = {
-  "a++": "#8884d8",
-  "a+": "#868686",
-  a: "#82ca9d",
-  "a-": "#ffc658",
-};
-
-const GroupedChartDemo = () => {
+const GroupedChartDemo = ({ groupColors, initialData, legend, sublegend }) => {
   const [groupSortOrder, setGroupSortOrder] = useState("asc");
   const [itemSortOrder, setItemSortOrder] = useState("desc");
 
   const processData = () => {
     const grouped = _.groupBy(initialData, "group");
 
-    let processedData = Object.entries(grouped).map(([dept, items]) => {
+    let processedData = Object.entries(grouped).map(([grp, items]) => {
       const sortedItems = _.orderBy(items, ["value"], [itemSortOrder]);
       const avgValue = _.meanBy(items, "value");
 
       return {
-        group: dept,
+        group: grp,
         items: sortedItems,
         avgValue,
-        color: groupColors[dept],
+        color: groupColors[grp],
       };
     });
 
@@ -135,7 +93,7 @@ const GroupedChartDemo = () => {
             x2={0}
             y2={-450} // Adjust this value based on your chart height
             stroke="#666"
-            strokeDasharray="2 2"
+            strokeDasharray="4 4"
           />
         </g>
       );
@@ -177,8 +135,8 @@ const GroupedChartDemo = () => {
         {payload.map((entry, index) => (
           <li key={`item-${index}`} style={{ color: entry.color }}>
             {/*   {entry.value} */}
-            <span className="block font-bold">Fitch ratings</span>
-            <span className="font-normal">Lower to higher risk</span>
+            <span className="block font-bold">{legend}</span>
+            <span className="font-normal">{sublegend}</span>
           </li>
         ))}
       </ul>
