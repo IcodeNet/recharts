@@ -13,7 +13,7 @@ import {
 import _ from "lodash";
 import { ArrowUpDown } from "lucide-react";
 
-const GroupedChartDemo = ({ groupColors, initialData, legend, sublegend }) => {
+const GroupedChartDemo = ({ initialData, legend, sublegend }) => {
   const [groupSortOrder, setGroupSortOrder] = useState("asc");
   const [itemSortOrder, setItemSortOrder] = useState("desc");
 
@@ -28,7 +28,6 @@ const GroupedChartDemo = ({ groupColors, initialData, legend, sublegend }) => {
         group: grp,
         items: sortedItems,
         avgValue,
-        color: groupColors[grp],
       };
     });
 
@@ -40,10 +39,10 @@ const GroupedChartDemo = ({ groupColors, initialData, legend, sublegend }) => {
 
   const chartData = data.flatMap((group, groupIndex) => {
     const items = group.items.map((item, index) => ({
-      label: item.label,
+      name: item.name,
       value: item.value,
       group: group.group,
-      color: groupColors[group.group],
+      color: item.color,
       isLastInGroup: index === group.items.length - 1,
       isFirstInGroup: index === 0,
       isSeparator: false,
@@ -52,7 +51,7 @@ const GroupedChartDemo = ({ groupColors, initialData, legend, sublegend }) => {
 
     if (groupIndex < data.length - 1) {
       items.push({
-        label: `${group.group}-separator`,
+        name: `${group.group}-separator`,
         value: 0,
         group: group.group,
         isSeparator: true,
@@ -109,7 +108,7 @@ const GroupedChartDemo = ({ groupColors, initialData, legend, sublegend }) => {
           fill="#666"
           fontSize="12px"
         >
-          {/*  {payload[index].label} */}
+          {/*  {payload[index].name} */}
         </text>
         {payload[index].isFirstInGroup && (
           <text
@@ -120,7 +119,7 @@ const GroupedChartDemo = ({ groupColors, initialData, legend, sublegend }) => {
             textAnchor="middle"
             fill="#666"
             fontSize="14px"
-            fontStyle="italic"
+            fontStyle="bold"
           >
             {payload[index].group}
           </text>
@@ -207,6 +206,8 @@ const GroupedChartDemo = ({ groupColors, initialData, legend, sublegend }) => {
       <div className="w-full min-w-full mt-8 h-96 ">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
+            barGap={2} // Adjust the gap between individual bars within a group
+            barCategoryGap="5" // Adjust the gap between categories
             data={chartData}
             margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
           >
@@ -218,7 +219,7 @@ const GroupedChartDemo = ({ groupColors, initialData, legend, sublegend }) => {
             />
             <XAxis
               axisLine={false}
-              dataKey="label"
+              dataKey="group"
               interval={0}
               tick={(props) => (
                 <CustomXAxisTick {...props} payload={chartData} />
@@ -248,7 +249,7 @@ const GroupedChartDemo = ({ groupColors, initialData, legend, sublegend }) => {
                   const data = payload[0].payload;
                   return (
                     <div className="p-2 bg-white border rounded shadow">
-                      <p className="font-bold">{data.label}</p>
+                      <p className="font-bold">{data.name}</p>
                       <p>Group: {data.group}</p>
                       <p>Interest: {data.value}</p>
                     </div>
@@ -263,18 +264,17 @@ const GroupedChartDemo = ({ groupColors, initialData, legend, sublegend }) => {
               This allows you to fully control the appearance and behavior of the legend */}
             <Legend content={<CustomLegend />} />
             <Bar
-              barSize={10}
+              barSize={10} // Adjust the width of each bar
               dataKey="value"
               name="Interest Rate"
               shape={<CustomBar />}
               isAnimationActive={false} // Disable animation
-              isActive={false} // Disable active state
             />
             {chartData.map((item, index) =>
               item.isSeparator ? (
                 <ReferenceLine
                   key={`separator-${index}`}
-                  x={item.label}
+                  x={item.name}
                   stroke="#ccc"
                   strokeDasharray="3 3"
                   strokeWidth={1}

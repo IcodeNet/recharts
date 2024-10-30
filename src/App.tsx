@@ -1,5 +1,8 @@
+import { useEffect, useState } from "react";
 import "./App.css";
 import GroupedChartDemo from "./GroupChart";
+
+import { deposits } from "./ref-data/deposits";
 
 const initialData = [
   { group: "a++", label: "a", value: 2.6 },
@@ -44,14 +47,30 @@ const groupColors = {
 };
 
 function App() {
+  const [chartData, setChartData] = useState([]);
+
+  useEffect(() => {
+    // Process the JSON data to extract the required fields
+    const processedData = deposits
+      .map((item) => ({
+        color: item.financialInstitution.inidicationColour,
+        name: item.financialInstitution.name,
+        group: item.financialInstitution.fitchRating,
+        value: item.productIssues[0].ratePercent,
+      }))
+      .filter((item) => item.value >= 0);
+    setChartData(processedData);
+  }, []);
+
   return (
     <div>
-      <GroupedChartDemo
-        groupColors={groupColors}
-        initialData={initialData}
-        legend={"Fitch ratings"}
-        sublegend={"Lower to higher risk"}
-      />
+      {chartData?.length > 1 && (
+        <GroupedChartDemo
+          initialData={chartData}
+          legend={"Fitch ratings"}
+          sublegend={"Lower to higher risk"}
+        />
+      )}
     </div>
   );
 }
